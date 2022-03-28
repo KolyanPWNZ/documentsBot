@@ -1,41 +1,82 @@
+import datetime
 
 
 class Document:
-
     __id_all = 0
-    __documents = dir()
 
-    def __init__(self, name: str, document_code: str, description: str):
+    def __init__(self, name: str, code: str, document_format: str):
         self.name = name
-        self.description = description
+        self.__code = code
+        self.__document_format = document_format
         Document.__id_all = Document.__id_all + 1
         self.__id = Document.__id_all
-        Document.__documents[self.__id] = {
-            'name': name,
-            'file': document_code,
-            'description': description
-        }
+        self.__date_creation = datetime.datetime
+        self.__date_last_change = datetime.datetime
 
     @property
-    def id(self):
-        return self.__id
-
-    @staticmethod
-    def id_all() -> int:
-        return Document.__id_all
+    def data_creation(self):
+        return self.__date_creation
 
     @property
-    def name(self) -> str:
+    def data_last_change(self):
+        return self.__date_last_change
+
+    @property
+    def name(self):
         return self.__name
 
     @name.setter
-    def name(self, name: str):
+    def name(self, name):
         self.__name = name
 
     @property
-    def description(self):
-        return self.__description
+    def code(self):
+        return self.__code
 
-    @description.setter
-    def description(self, description):
-        self.__description = description
+    @property
+    def document_format(self):
+        return self.__document_format
+
+
+class DocumentsManager:
+    __documents = dict()
+    __id = 0
+
+    def __init__(self):
+        pass
+
+    # добавление документа
+    @staticmethod
+    def add_document(chat_id: int, document: Document):
+        if type(document) != Document:
+            raise "Некорректный формат документа на входе!"
+
+        if chat_id not in DocumentsManager.__documents:
+            DocumentsManager.__documents[chat_id] = dict()
+
+        DocumentsManager.__id = DocumentsManager.__id + 1
+        id_doc = DocumentsManager.__id
+        DocumentsManager.__documents[chat_id][id_doc] = document
+
+    @staticmethod
+    def get_document(chat_id, id_doc) -> Document:
+        if chat_id not in DocumentsManager.__documents:
+            return None
+
+        if id_doc not in DocumentsManager.__documents[chat_id]:
+            return None
+
+        return DocumentsManager.__documents[chat_id][id_doc]
+
+
+    @staticmethod
+    def get_all_documents(chat_id) -> dict:
+        if chat_id in DocumentsManager.__documents:
+            return DocumentsManager.__documents[chat_id]
+        else:
+            return dict()
+
+
+
+
+
