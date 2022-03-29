@@ -68,6 +68,16 @@ class DocumentsManager:
 
         return DocumentsManager.__documents[chat_id][id_doc]
 
+    @staticmethod
+    def delete_document(chat_id: int, id_doc: int) -> (bool, str):
+        if chat_id not in DocumentsManager.__documents:
+            return False, 'У пользователя нет документов в базе'
+
+        if id_doc not in DocumentsManager.__documents[chat_id]:
+            return False, f'Не было найдено документов по id={id_doc}'
+
+        del DocumentsManager.__documents[chat_id][id_doc]
+        return True, f'Документ с id={id_doc} был удален'
 
     @staticmethod
     def get_all_documents(chat_id) -> dict:

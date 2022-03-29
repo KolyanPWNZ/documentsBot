@@ -41,21 +41,53 @@ def input_handler(message):
 
     elif message.text == 'Получить документ':
         send = bot.send_message(message.chat.id, 'Пришлите id документа, который хотите получить.'
-                                                 'Узнать id документа можно, запросить у меня список всех документов'
+                                                 'Узнать id документа можно, запросив у меня список всех документов'
                                                  'в другом пункте меню.')
-        bot.register_next_step_handler(send, add_document_to_server)
+        bot.register_next_step_handler(send, get_document)
 
     elif message.text == 'Добавить новый документ':
         send = bot.send_message(message.chat.id, 'Пришлите мне ваш документ')
         bot.register_next_step_handler(send, add_document_to_server)
 
     elif message.text == 'Удалить документ из бота':
-        bot.send_message(message.chat.id, 'Привет')
+        send = bot.send_message(message.chat.id, 'Пришлите id документа, который хотите Удалить.'
+                                                 'Узнать id документа можно, запросив у меня список всех документов'
+                                                 'в другом пункте меню.')
+        bot.register_next_step_handler(send, delete_document)
 
     else:
         bot.send_message(message.chat.id, 'Не понимаю :(')
 
+def delete_document(message):
+    try:
+        id_doc = int(message.text)
+    except Exception as err:
+        bot.send_message(message.chat.id, 'Некорекктный id документа :(')
+        return
 
+    status, info = doc_mng.delete_document(message.chat.id, id_doc)
+    bot.send_message(message.chat.id, info)
+
+
+
+
+def get_document(message):
+    try:
+        id_doc = int(message.text)
+    except Exception as err:
+        bot.send_message(message.chat.id, 'Некорекктный id документа :(')
+        return
+
+    document = doc_mng.get_document(message.chat.id, id_doc)
+    if document is None:
+        bot.send_message(message.chat.id, f'К сожалению не удалось найти документ по id={id_doc}')
+        return
+    bot.send_document(message.chat.id, document.code)
+
+
+
+
+# вывод списка документов пользователя
 def print_docs(chat_id: int, docs: dict):
     if len(docs) == 0:
         bot.send_message(chat_id, 'Документы не найдены')
@@ -66,8 +98,6 @@ def print_docs(chat_id: int, docs: dict):
         doc_info = doc_info + '\n' + f'\t{id}: {docs[id].name}'
     bot.send_message(chat_id, doc_info)
 
-
-d
 
 # функция обработчик: добавление нового документа
 def add_document_to_server(message):
